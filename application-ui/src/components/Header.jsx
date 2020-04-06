@@ -1,8 +1,13 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
 
 class Header extends Component {
-  state = {};
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
   render() {
     return (
       <div>
@@ -17,10 +22,25 @@ class Header extends Component {
             </li>
           </ul>
           <hr />
+          <h2>
+            Application Count - Total: {this.props.applications.length} Draft:{" "}
+            {this.props.applications.filter(x => x.status === "Draft").length}{" "}
+            Pending:{" "}
+            {this.props.applications.filter(x => x.status === "Pending").length}{" "}
+            Approved:{" "}
+            {
+              this.props.applications.filter(x => x.status === "Approved")
+                .length
+            }
+          </h2>
         </div>
       </div>
     );
   }
 }
 
-export default Header;
+function mapStateToProps(state) {
+  return { applications: state.applications };
+}
+
+export default connect(mapStateToProps)(Header);

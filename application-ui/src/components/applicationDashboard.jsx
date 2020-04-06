@@ -1,12 +1,12 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
 
 class ApplicationDashboard extends Component {
-  state = {
-    draftApplicationCount: 0,
-    pendingApplicationCount: 0,
-    approvedApplicationCount: 0
-  };
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
 
   render() {
     var draftCardStyle = {
@@ -27,6 +27,7 @@ class ApplicationDashboard extends Component {
       height: "250px",
       display: "inline-block"
     };
+
     return (
       <div>
         <div
@@ -34,16 +35,34 @@ class ApplicationDashboard extends Component {
           style={draftCardStyle}
         >
           <div className="card-body">
-            <Link to="/ApplicationList" className="card-title card-text">
+            <Link
+              to="/ApplicationList?Filter=Draft"
+              className="card-title card-text"
+            >
               <h5 className="card-title">Draft</h5>
-              <p className="card-text">{this.state.draftApplicationCount}</p>
+              <p className="card-text">
+                {
+                  this.props.applications.filter(x => x.status === "Draft")
+                    .length
+                }
+              </p>
             </Link>
           </div>
         </div>
         <div className="card text-white bg-info mb-3" style={pendingCardStyle}>
           <div className="card-body">
-            <h5 className="card-title">Pending</h5>
-            <p className="card-text">{this.state.pendingApplicationCount}</p>
+            <Link
+              to="/ApplicationList?Filter=Pending"
+              className="card-title card-text"
+            >
+              <h5 className="card-title">Pending</h5>
+              <p className="card-text">
+                {
+                  this.props.applications.filter(x => x.status === "Pending")
+                    .length
+                }
+              </p>
+            </Link>
           </div>
         </div>
         <div
@@ -51,8 +70,18 @@ class ApplicationDashboard extends Component {
           style={approvedCardStyle}
         >
           <div className="card-body">
-            <h5 className="card-title">Approved</h5>
-            <p className="card-text">{this.state.approvedApplicationCount}</p>
+            <Link
+              to="/ApplicationList?Filter=Approved"
+              className="card-title card-text"
+            >
+              <h5 className="card-title">Approved</h5>
+              <p className="card-text">
+                {
+                  this.props.applications.filter(x => x.status === "Approved")
+                    .length
+                }
+              </p>
+            </Link>
           </div>
         </div>
       </div>
@@ -60,4 +89,8 @@ class ApplicationDashboard extends Component {
   }
 }
 
-export default ApplicationDashboard;
+function mapStateToProps(state) {
+  return { applications: state.applications };
+}
+
+export default connect(mapStateToProps)(ApplicationDashboard);

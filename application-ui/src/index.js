@@ -8,13 +8,17 @@ import ApplicationList from "./components/applicationList";
 import { Route } from "react-router";
 import { BrowserRouter } from "react-router-dom";
 import ApplicationDetails from "./components/ApplicationDetails";
+import { Provider } from "react-redux";
+import store from "./js/store/index";
 
 ReactDOM.render(
-  <BrowserRouter>
-    <Route exact path="/" component={Home} />
-    <Route path="/ApplicationList" component={ApplicationList} />
-    <Route path="/ApplicationDetails" component={ApplicationDetails} />
-  </BrowserRouter>,
+  <Provider store={store}>
+    <BrowserRouter>
+      <Route exact path="/" component={Home} />
+      <Route path="/ApplicationList" component={ApplicationList} />
+      <Route path="/ApplicationDetails" component={ApplicationDetails} />
+    </BrowserRouter>
+  </Provider>,
   document.getElementById("root")
 );
 

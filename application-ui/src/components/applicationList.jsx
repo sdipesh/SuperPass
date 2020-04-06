@@ -2,12 +2,18 @@ import React, { Component } from "react";
 import DataTable from "react-bs-datatable";
 import Header from "./Header";
 import Footer from "./Footer";
+import { connect } from "react-redux";
+import queryString from "query-string";
+import { Link } from "react-router-dom";
 
 class ApplicationList extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
-      applications: []
+      qsFilter: queryString.parse(this.props.location.search)
+        ? queryString.parse(this.props.location.search).Filter
+        : null
     };
     this.header = [
       { title: "#", prop: "id", sortable: true, filterable: true },
@@ -16,7 +22,9 @@ class ApplicationList extends Component {
         prop: "name",
         sortable: true,
         filterable: true,
-        cell: row => <a href={`/ApplicationDetails?ID=${row.id}`}>{row.name}</a>
+        cell: row => (
+          <Link to={`/ApplicationDetails?ID=${row.id}`}>{row.name}</Link>
+        )
       },
       { title: "Status", prop: "status", sortable: true, filterable: true },
       {
@@ -26,15 +34,6 @@ class ApplicationList extends Component {
         filterable: true
       }
     ];
-  }
-
-  componentDidMount() {
-    fetch("http://localhost:9000/api/applications")
-      .then(res => res.json())
-      .then(data => {
-        this.setState({ applications: data });
-      })
-      .catch(console.log);
   }
 
   render() {
@@ -48,7 +47,13 @@ class ApplicationList extends Component {
           <div className="container">
             <DataTable
               tableHeaders={this.header}
-              tableBody={this.state.applications}
+              tableBody={
+                this.state.qsFilter
+                  ? this.props.applications.filter(
+                      x => x.status === this.state.qsFilter
+                    )
+                  : this.props.applications
+              }
               keyName="applicationTable"
               tableClass="striped hover bordered responsive"
               rowsPerPage={3}
@@ -63,4 +68,8 @@ class ApplicationList extends Component {
   }
 }
 
-export default ApplicationList;
+function mapStateToProps(state) {
+  return { applications: state.applications };
+}
+
+export default connect(mapStateToProps)(ApplicationList);

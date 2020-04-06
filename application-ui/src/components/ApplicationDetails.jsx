@@ -1,39 +1,51 @@
 import React, { Component } from "react";
-import queryString from "query-string";
 import Header from "./Header";
 import Footer from "./Footer";
+import { connect } from "react-redux";
+import queryString from "query-string";
+import { updateApplication } from "../js/actions/index";
 
 class ApplicationDetails extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading: true,
-      applicationId: 0,
-      applicationName: null,
-      status: null,
-      adjudicator: null
+      qsFilter: queryString.parse(this.props.location.search)
+        ? queryString.parse(this.props.location.search).ID
+        : null,
+      application: null
     };
+
+    this.state.application = this.state.qsFilter
+      ? this.props.applications.filter(
+          x => x.id === parseInt(this.state.qsFilter)
+        )[0]
+      : null;
+
+    this.changeHandler = this.changeHandler.bind(this);
   }
 
-  applicationNameChangeHandler = event => {
-    this.setState({ applicationName: event.target.value });
-  };
-  statusChangeHandler = event => {
-    this.setState({ status: event.target.value });
-  };
-  adjudicatorChangeHandler = event => {
-    this.setState({ adjudicator: event.target.value });
+  changeHandler = event => {
+    const { name, value } = event.target;
+
+    this.setState({
+      application: {
+        // object that we want to update
+        ...this.state.application, // keep all other key-value pairs
+        [name]: value // update the value of specific key
+      }
+    });
   };
 
   mySubmitHandler = event => {
     event.preventDefault();
+
     const url =
-      "http://localhost:9000/api/applications/" + this.state.applicationId;
+      "http://localhost:9000/api/applications/" + this.state.application.id;
 
     const payload = {
-      name: this.state.applicationName,
-      status: this.state.status,
-      adjudicator: this.state.adjudicator
+      name: this.state.application.name,
+      status: this.state.application.status,
+      adjudicator: this.state.application.adjudicator
     };
     //console.log(JSON.stringify(payload));
     fetch(url, {
@@ -46,41 +58,26 @@ class ApplicationDetails extends Component {
       .then(res => res.json())
       .then(data => {
         this.setState({
-          applicationId: data.id,
-          applicationName: data.name,
-          status: data.status,
-          adjudicator: data.adjudicator,
-          loading: false
+          application: data
         });
-        alert("Success!!!");
+
+        this.props.updateApplication(this.state.application);
+        //alert("Success!!!");
       })
       .catch(console.log);
   };
 
-  componentDidMount() {
-    const params = queryString.parse(this.props.location.search);
-    const appId = params.ID;
-    const url = "http://localhost:9000/api/applications/" + appId;
-
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        this.setState({
-          applicationId: data.id,
-          applicationName: data.name,
-          status: data.status,
-          adjudicator: data.adjudicator,
-          loading: false
-        });
-      })
-      .catch(console.log);
-  }
-
   render() {
-    if (this.state.loading) return <div>loading...</div>;
-
-    if (this.state.applicationId === 0)
+    if (this.state.qsFilter == null) {
+      return <div>Invalid application Id</div>;
+    }
+    if (
+      this.props.applications.filter(
+        x => x.id === parseInt(this.state.qsFilter)
+      ).length === 0
+    ) {
       return <div>Application not found.</div>;
+    }
 
     return (
       <div>
@@ -98,7 +95,7 @@ class ApplicationDetails extends Component {
                     <input
                       type="text"
                       placeholder="ID"
-                      defaultValue={this.state.applicationId}
+                      defaultValue={this.state.application.id}
                       readOnly
                     />
                   </td>
@@ -109,8 +106,9 @@ class ApplicationDetails extends Component {
                     <input
                       type="text"
                       placeholder="Name"
-                      onChange={this.applicationNameChangeHandler}
-                      value={this.state.applicationName}
+                      name="name"
+                      onChange={this.changeHandler}
+                      value={this.state.application.name}
                     />
                   </td>
                 </tr>
@@ -120,8 +118,9 @@ class ApplicationDetails extends Component {
                     <input
                       type="text"
                       placeholder="Status"
-                      onChange={this.statusChangeHandler}
-                      value={this.state.status}
+                      name="status"
+                      onChange={this.changeHandler}
+                      value={this.state.application.status}
                     />
                   </td>
                 </tr>
@@ -131,8 +130,9 @@ class ApplicationDetails extends Component {
                     <input
                       type="text"
                       placeholder="Adjudicator"
-                      onChange={this.adjudicatorChangeHandler}
-                      value={this.state.adjudicator}
+                      name="adjudicator"
+                      onChange={this.changeHandler}
+                      value={this.state.application.adjudicator}
                     />
                   </td>
                 </tr>
@@ -152,4 +152,14 @@ class ApplicationDetails extends Component {
   }
 }
 
-export default ApplicationDetails;
+function mapStateToProps(state) {
+  return { applications: state.applications };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    updateApplication: application => dispatch(updateApplication(application))
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ApplicationDetails);
