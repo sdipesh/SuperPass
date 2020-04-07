@@ -11,7 +11,7 @@ class Header extends Component {
   render() {
     return (
       <div>
-        <h1 className="alert alert-primary">SuperPass Application</h1>
+        <h1 className="alert alert-primary">SuperPass Application Jenkins</h1>
         <div>
           <ul>
             <li>
