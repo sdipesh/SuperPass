@@ -1,94 +1,45 @@
 const Joi = require("@hapi/joi");
 const express = require("express");
+const bodyParser = require("body-parser");
 const cors = require("cors");
-const app = express();
+const dotenv = require ("dotenv");
 
+//Initialization
+const app = express();
 app.use(express.json());
 app.use(cors());
+dotenv.config();
 
-var applications = [
-  { id: 1, name: "Application 1", status: "Draft", adjudicator: "Simon" },
-  { id: 2, name: "Application 2", status: "Pending", adjudicator: "Ana" },
-  { id: 3, name: "Application 3", status: "Approved", adjudicator: "David" },
-  { id: 4, name: "Application 4", status: "Draft", adjudicator: "Simon" },
-  { id: 5, name: "Application 5", status: "Pending", adjudicator: "Ana" },
-  { id: 6, name: "Application 6", status: "Pending", adjudicator: "Simon" },
-  { id: 7, name: "Application 7", status: "Draft", adjudicator: "David" },
-  { id: 8, name: "Application 8", status: "Approved", adjudicator: "Simon" },
-  { id: 9, name: "Application 9", status: "Approved", adjudicator: "John" },
-  { id: 10, name: "Application 10", status: "Pending", adjudicator: "John" }
-];
+// parse requests of content-type - application/json
+app.use(bodyParser.json());
 
-app.get("/api/applications", (req, res) => {
-  res.send(applications);
-});
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get("/api/applications/:id", (req, res) => {
-  const application = applications.find(a => a.id === parseInt(req.params.id));
-  if (!application)
-    return res
-      .status(404)
-      .send("The Application with the given ID was not found");
-  res.send(application);
-});
-
-app.post("/api/applications", (req, res) => {
-  const result = validateApplication(req.body);
-  if (result.error) {
-    return res.status(400).send(result.error.details[0].message);
-  }
-
-  const application = {
-    id: applications.length + 1,
-    name: req.body.name,
-    status: req.body.status,
-    adjudicator: req.body.adjudicator
-  };
-  applications.push(application);
-  res.send(application);
-});
-
-app.put("/api/applications/:id", (req, res) => {
-  const application = applications.find(a => a.id === parseInt(req.params.id));
-  if (!application)
-    return res
-      .status(404)
-      .send("The Application with the given ID was not found");
-
-  const result = validateApplication(req.body);
-  if (result.error) {
-    return res.status(400).send(result.error.details[0].message);
-  }
-
-  application.name = req.body.name;
-  application.status = req.body.status;
-  application.adjudicator = req.body.adjudicator;
-  res.send(application);
-});
-
-app.delete("/api/applications/:id", (req, res) => {
-  const application = applications.find(a => a.id === parseInt(req.params.id));
-  if (!application)
-    return res
-      .status(404)
-      .send("The Application with the given ID was not found");
-
-  const index = applications.indexOf(application);
-  applications.splice(index, 1);
-
-  res.send(application);
-});
-
-function validateApplication(application) {
-  const schema = Joi.object({
-    name: Joi.string()
-      .min(3)
-      .required(),
-    status: Joi.string(),
-    adjudicator: Joi.string()
+//Database Connection
+const db = require("./app/models");
+db.mongoose
+  .connect(db.url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => {
+    console.log("Connected to the database!");
+  })
+  .catch(err => {
+    console.log("Cannot connect to the database!", err);
+    process.exit();
   });
 
-  return schema.validate(application);
-}
+// simple route
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to SuperPass application." });
+});
 
-app.listen(9000, () => console.log("Listening on port 9000..."));
+require("./app/routes/application.routes.js")(app);
+
+// set port, listen for requests
+const PORT = process.env.PORT || 8181;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
+});
