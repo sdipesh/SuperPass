@@ -83,13 +83,13 @@ exports.update = (req, res) => {
     
       const id = req.params.id;
     
-      Application.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
+      Application.findByIdAndUpdate(id, req.body, { useFindAndModify: false, new : true })
         .then(data => {
           if (!data) {
             res.status(404).send({
               message: `Cannot update Application with id=${id}. Maybe Application was not found!`
             });
-          } else res.send({ message: "Application was updated successfully." });
+          } else res.send(data);
         })
         .catch(err => {
           res.status(500).send({
@@ -109,9 +109,7 @@ exports.delete = (req, res) => {
             message: `Cannot delete Application with id=${id}. Maybe Application was not found!`
           });
         } else {
-          res.send({
-            message: "Application was deleted successfully!"
-          });
+          res.send(data);
         }
       })
       .catch(err => {
