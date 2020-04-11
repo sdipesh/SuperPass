@@ -16,16 +16,16 @@ class ApplicationList extends Component {
         : null
     };
     this.header = [
-      { title: "#", prop: "id", sortable: true, filterable: true },
+      { title: "Application #", prop: "application_number", sortable: true, filterable: true },
       {
-        title: "Application Name",
-        prop: "name",
+        title: "Customer Name",
+        prop: "customer_name",
         sortable: true,
         filterable: true,
         cell: row => (
-          <Link to={`/ApplicationDetails?ID=${row.id}`}>{row.name}</Link>
+          <Link to={`/ApplicationDetails?ID=${row.id}`}>{row.customer_name}</Link>
         )
-      },
+      },      
       { title: "Status", prop: "status", sortable: true, filterable: true },
       {
         title: "Adjudicator",

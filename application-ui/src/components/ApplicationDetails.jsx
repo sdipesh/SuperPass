@@ -17,7 +17,7 @@ class ApplicationDetails extends Component {
 
     this.state.application = this.state.qsFilter
       ? this.props.applications.filter(
-          x => x.id === parseInt(this.state.qsFilter)
+          x => x.id === this.state.qsFilter
         )[0]
       : null;
 
@@ -43,7 +43,8 @@ class ApplicationDetails extends Component {
       "http://localhost:9000/api/applications/" + this.state.application.id;
 
     const payload = {
-      name: this.state.application.name,
+      application_number: this.state.application.application_number,
+      customer_name: this.state.application.customer_name,
       status: this.state.application.status,
       adjudicator: this.state.application.adjudicator
     };
@@ -73,7 +74,7 @@ class ApplicationDetails extends Component {
     }
     if (
       this.props.applications.filter(
-        x => x.id === parseInt(this.state.qsFilter)
+        x => x.id === this.state.qsFilter
       ).length === 0
     ) {
       return <div>Application not found.</div>;
@@ -90,25 +91,25 @@ class ApplicationDetails extends Component {
             <table>
               <tbody>
                 <tr>
-                  <td className="ui header">Application ID</td>
+                  <td className="ui header">Application #</td>
                   <td>
                     <input
                       type="text"
                       placeholder="ID"
-                      defaultValue={this.state.application.id}
+                      defaultValue={this.state.application.application_number}
                       readOnly
                     />
                   </td>
                 </tr>
                 <tr>
-                  <td className="ui header">Application Name</td>
+                  <td className="ui header">Customer Name</td>
                   <td>
                     <input
                       type="text"
-                      placeholder="Name"
-                      name="name"
+                      placeholder="Customer Name"
+                      name="customer_name"
                       onChange={this.changeHandler}
-                      value={this.state.application.name}
+                      value={this.state.application.customer_name || ''}                      
                     />
                   </td>
                 </tr>
@@ -120,7 +121,7 @@ class ApplicationDetails extends Component {
                       placeholder="Status"
                       name="status"
                       onChange={this.changeHandler}
-                      value={this.state.application.status}
+                      value={this.state.application.status || ''}
                     />
                   </td>
                 </tr>
@@ -132,7 +133,7 @@ class ApplicationDetails extends Component {
                       placeholder="Adjudicator"
                       name="adjudicator"
                       onChange={this.changeHandler}
-                      value={this.state.application.adjudicator}
+                      value={this.state.application.adjudicator || ''}
                     />
                   </td>
                 </tr>
