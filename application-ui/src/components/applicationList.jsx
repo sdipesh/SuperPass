@@ -25,7 +25,7 @@ class ApplicationList extends Component {
         cell: row => (
           <Link to={`/ApplicationDetails?ID=${row.id}`}>{row.customer_name}</Link>
         )
-      },      
+      },
       { title: "Status", prop: "status", sortable: true, filterable: true },
       {
         title: "Adjudicator",

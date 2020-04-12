@@ -48,7 +48,7 @@ class ApplicationDetails extends Component {
       status: this.state.application.status,
       adjudicator: this.state.application.adjudicator
     };
-    //console.log(JSON.stringify(payload));
+
     fetch(url, {
       method: "PUT",
       body: JSON.stringify(payload),
@@ -63,7 +63,6 @@ class ApplicationDetails extends Component {
         });
 
         this.props.updateApplication(this.state.application);
-        //alert("Success!!!");
       })
       .catch(console.log);
   };
